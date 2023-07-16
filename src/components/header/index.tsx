@@ -15,9 +15,11 @@ export default function Header() {
               Tarefas<span>+</span>
             </h1>
           </Link>
-          <Link href="/dashboard" className={styles.link}>
-            Meu Painel
-          </Link>
+          {session?.user && (
+            <Link href="/dashboard" className={styles.link}>
+              Meu Painel
+            </Link>
+          )}
         </nav>
         {status === "loading" ? (
           <></>
@@ -26,7 +28,10 @@ export default function Header() {
             olá {session?.user?.name}
           </button>
         ) : (
-          <button className={styles.LoginButton} onClick={() => signIn('google')}>
+          <button
+            className={styles.LoginButton}
+            onClick={() => signIn("google")}
+          >
             Acessar
           </button>
         )}
