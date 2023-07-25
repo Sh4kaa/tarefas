@@ -6,8 +6,16 @@ import styles from "./styles.module.css";
 import { Textarea } from "@/components/textarea";
 import { FiShare2 } from "react-icons/fi";
 import { FaTrash } from "react-icons/fa";
+import { db } from "@/services/firebaseConnection";
+import { collection, addDoc } from "firebase/firestore";
 
-export default function Dashboard() {
+interface HomeProps {
+  user: {
+    email: string
+  }
+}
+
+export default function Dashboard({user}: HomeProps) {
   const [input, setinput] = useState("");
   const [publicTask, setPublicTask] = useState(false);
 
@@ -15,13 +23,25 @@ export default function Dashboard() {
     setPublicTask(event.target.checked);
   }
 
-  function handleRegisterTask(event: FormEvent) {
+  async function handleRegisterTask(event: FormEvent) {
     event.preventDefault();
     if(input === '') {
       alert('Você precisa cadastrar uma tarefa')
       return;
     }
-    alert('Teste')
+    try {
+      await addDoc(collection(db, 'Tasks'),{
+        task: input,
+        created: new Date(),
+        user: user?.email,
+        public: publicTask
+      })
+      setinput('')
+      setPublicTask(false)
+    } catch (error) {
+      console.log(error)
+    }
+    
   }
   return (
     <div className={styles.container}>
@@ -96,6 +116,10 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   }
 
   return {
-    props: {},
+    props: {
+      user: {
+        email: session?.user?.email
+      }
+    },
   };
 };
