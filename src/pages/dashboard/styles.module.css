@@ -45,6 +45,17 @@
   background-color: #3183ff;
   padding: 12px 0;
   font-size: 18px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #0447ac;
+  color: black;
+  transition: all 0.3s;
+}
+
+.button:active {
+  transform: scale(97%);
 }
 
 .taskContainer {
