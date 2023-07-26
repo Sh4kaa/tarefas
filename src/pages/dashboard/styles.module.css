@@ -51,11 +51,12 @@
 .button:hover {
   background: #0447ac;
   color: black;
+  transform: scale(1.02);
   transition: all 0.3s;
 }
 
 .button:active {
-  transform: scale(97%);
+  transform: scale(100%);
 }
 
 .taskContainer {
