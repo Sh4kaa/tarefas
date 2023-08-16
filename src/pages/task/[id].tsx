@@ -19,10 +19,11 @@ export default function Task() {
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id as string;
-
+  // Fazendo referência ao banco
   const docRef = doc(db, "Tasks", id);
+  //puxando informações do banco por meio da referência
   const snapshot = await getDoc(docRef);
-
+// verificando se os dados são undefined, caso sejam, redirecione para página home
   if (snapshot.data() === undefined) {
     return {
       redirect: {
@@ -31,7 +32,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
       },
     };
   }
-
+  // Verificando se o status da tarefa é publica, caso negativo, redireciona para a home
   if (!snapshot.data()?.public) {
     return {
       redirect: {
@@ -40,9 +41,9 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
       },
     };
   }
-
+  // convertendo datas
   const miliseconds = snapshot.data()?.created.seconds * 1000;
-
+//montando o objeto para devolver ao front
   const task = {
     public: snapshot.data()?.public,
     created: new Date(miliseconds).toLocaleDateString(),
