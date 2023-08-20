@@ -53,3 +53,8 @@
   cursor: pointer;
   margin-top: .5rem;
 }
+
+.button:disabled {
+  cursor: not-allowed;
+  background: #3183ff50
+}
