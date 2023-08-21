@@ -1,7 +1,7 @@
 import Head from "next/head";
 import styles from "./styles.module.css";
 import { GetServerSideProps } from "next";
-import { doc, collection, query, where, getDoc, addDoc } from "firebase/firestore";
+import { doc, collection, query, where, getDoc, addDoc, getDocs } from "firebase/firestore";
 import { db } from "@/services/firebaseConnection";
 import { Textarea } from "@/components/textarea";
 import { useSession } from "next-auth/react";
@@ -13,9 +13,16 @@ type TaskProps = {
     created: string;
     user: string;
     task: string;
-    taskID: string;
+    taskId: string;
   };
 };
+type CommentProps = {
+  id: string;
+  comment: string;
+  taskId: string;
+  user: string;
+  name: string;
+}
 
 export default function Task({ dataTasks }: TaskProps) {
   const [input, setInput] = useState("");
@@ -34,7 +41,7 @@ export default function Task({ dataTasks }: TaskProps) {
         created: new Date(),
         user: session?.user?.email,
         name: session?.user?.name,
-        taskId: dataTasks?.taskID,
+        taskId: dataTasks?.taskId,
       });
       setInput("");
     } catch (err) {
@@ -81,6 +88,21 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   //puxando informações do banco por meio da referência
   const snapshot = await getDoc(docRef);
   // verificando se os dados são undefined, caso sejam, redirecione para página home
+
+  //buscando comentários no banco
+  const q = query(collection(db, "comments"), where("taskId", "==", id));
+  const snapshotComments = await getDocs(q);
+
+  let allComments: CommentProps[] = [];
+  snapshotComments.forEach((doc) => {
+    allComments.push({
+      id: doc.id,
+      comment: doc.data().comment,
+      user: doc.data().user,
+      name: doc.data().name,
+      taskId: doc.data().taskId,
+    });
+  });
   if (snapshot.data() === undefined) {
     return {
       redirect: {
@@ -106,10 +128,10 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     created: new Date(miliseconds).toLocaleDateString(),
     user: snapshot.data()?.user,
     task: snapshot.data()?.task,
-    taskID: id,
+    taskId: id,
   };
-
+  console.log(allComments)
   return {
-    props: { dataTasks },
+    props: { dataTasks, allComments },
   };
 };
