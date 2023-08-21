@@ -6,6 +6,7 @@ import { db } from "@/services/firebaseConnection";
 import { Textarea } from "@/components/textarea";
 import { useSession } from "next-auth/react";
 import { ChangeEvent, FormEvent, useState } from "react";
+import { FaTrash } from "react-icons/fa";
 
 type TaskProps = {
   dataTasks: {
@@ -14,7 +15,8 @@ type TaskProps = {
     user: string;
     task: string;
     taskId: string;
-  };
+  },
+  allComments: CommentProps[]
 };
 type CommentProps = {
   id: string;
@@ -24,9 +26,10 @@ type CommentProps = {
   name: string;
 }
 
-export default function Task({ dataTasks }: TaskProps) {
+export default function Task({ dataTasks, allComments  }: TaskProps) {
   const [input, setInput] = useState("");
   const { data: session } = useSession();
+  const [comments, setComments] = useState<CommentProps[]>(allComments || []);
 
   async function handleComment(event: FormEvent) {
     event.preventDefault();
@@ -43,6 +46,15 @@ export default function Task({ dataTasks }: TaskProps) {
         name: session?.user?.name,
         taskId: dataTasks?.taskId,
       });
+      const data = {
+        id: docRef.id,
+        comment: input,
+        user: session?.user?.email,
+        name: session?.user?.name,
+        taskId: dataTasks?.taskId,
+      };
+
+      setComments((oldItems) => [...oldItems, data]);
       setInput("");
     } catch (err) {
       console.log(err);
@@ -76,6 +88,30 @@ export default function Task({ dataTasks }: TaskProps) {
             Enviar comentário
           </button>
         </form>
+      </section>
+            {/* sessão de comments */}
+      <section className={styles.commentsContainer}>
+        <h2>Todos comentários</h2>
+        {comments.length === 0 && (
+          <span>Nenhum comentário foi encontrado...</span>
+        )}
+
+        {comments.map((item) => (
+          <article key={item.id} className={styles.comment}>
+            <div className={styles.headComment}>
+              <label className={styles.commentsLabel}>{item.name}</label>
+              {item.user === session?.user?.email && (
+                <button
+                  className={styles.buttonTrash}
+                  onClick={() => handleDeleteComment(item.id)}
+                >
+                  <FaTrash size={18} color="#EA3140" />
+                </button>
+              )}
+            </div>
+            <p>{item.comment}</p>
+          </article>
+        ))}
       </section>
     </div>
   );
