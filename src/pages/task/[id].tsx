@@ -1,7 +1,16 @@
 import Head from "next/head";
 import styles from "./styles.module.css";
 import { GetServerSideProps } from "next";
-import { doc, collection, query, where, getDoc, addDoc, getDocs } from "firebase/firestore";
+import {
+  doc,
+  collection,
+  query,
+  where,
+  getDoc,
+  addDoc,
+  getDocs,
+  deleteDoc,
+} from "firebase/firestore";
 import { db } from "@/services/firebaseConnection";
 import { Textarea } from "@/components/textarea";
 import { useSession } from "next-auth/react";
@@ -15,8 +24,8 @@ type TaskProps = {
     user: string;
     task: string;
     taskId: string;
-  },
-  allComments: CommentProps[]
+  };
+  allComments: CommentProps[];
 };
 type CommentProps = {
   id: string;
@@ -24,9 +33,9 @@ type CommentProps = {
   taskId: string;
   user: string;
   name: string;
-}
+};
 
-export default function Task({ dataTasks, allComments  }: TaskProps) {
+export default function Task({ dataTasks, allComments }: TaskProps) {
   const [input, setInput] = useState("");
   const { data: session } = useSession();
   const [comments, setComments] = useState<CommentProps[]>(allComments || []);
@@ -60,6 +69,18 @@ export default function Task({ dataTasks, allComments  }: TaskProps) {
       console.log(err);
     }
   }
+
+  async function handleDeleteComment(id: string) {
+    try {
+      const docRef = doc(db, "comments", id);
+      await deleteDoc(docRef);
+      alert("Deletado");
+      const deletedComments = comments.filter((comment) => comment.id !== id);
+      setComments(deletedComments);
+    } catch (err) {
+      console.log(err);
+    }
+  }
   return (
     <div className={styles.container}>
       <Head>
@@ -89,7 +110,7 @@ export default function Task({ dataTasks, allComments  }: TaskProps) {
           </button>
         </form>
       </section>
-            {/* sessão de comments */}
+      {/* sessão de comments */}
       <section className={styles.commentsContainer}>
         <h2>Todos comentários</h2>
         {comments.length === 0 && (
@@ -166,7 +187,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     task: snapshot.data()?.task,
     taskId: id,
   };
-  console.log(allComments)
+  
   return {
     props: { dataTasks, allComments },
   };
