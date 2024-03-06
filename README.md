@@ -1,6 +1,6 @@
 ## Descrição
 ### Tarefas Plus 🤗
-Este Projeto lembra muito um TodoList, mas com um alguns upgrades. O site com conta com autenticação google
+Este Projeto lembra muito um TodoList, mas com um alguns upgrades. O site com conta com autenticação google e foi utilizado o firebase como banco
 
 https://tarefas-sh4kaa.vercel.app
 
